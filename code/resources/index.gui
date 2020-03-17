@@ -1,0 +1,9 @@
+<!-- Version: h*** (heart-rate, socket/fetch, DoryNode/Heroku, view/download) -->
+
+<svg>
+  <text x="150" y="50" font-family="Colfax-Bold" font-size="30" text-anchor="middle" fill="#808080" text-length="12" >Heart rate:</text>
+  <text id="hr" x="150" y="145" font-family="Colfax-Bold" font-size="110" text-anchor="middle" fill="#80B0FF" text-length="4" ></text>
+
+  <text x="150" y="215" font-family="Colfax-Bold" font-size="30" text-anchor="middle" fill="#808080" text-length="8" >Time:</text>
+  <text id="time" x="150" y="260" font-family="Colfax-Bold" font-size="40" text-anchor="middle" fill="#ffffff" text-length="12" ></text>
+</svg>

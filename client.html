@@ -1,0 +1,29 @@
+<!-- Version: hsdv (heart-rate, socket, DoryNode, view) -->
+
+<html>
+  <head>
+  </head>
+  <body>
+    <h1>client.html</h1>
+    <label>Heart rate: </label>
+    <input type="text" id="hr" size="4" readonly="readonly">
+    <br/>
+    <label>Time: </label>
+    <input type="text" id="time" size="10" readonly="readonly">
+    <script>
+      const wsUrl = 'ws://192.168.1.19:8080'        // Update this to the network IP on which the server is running. Dory can tell you.
+      const hrEl = document.getElementById("hr")
+      const timeEl = document.getElementById("time")
+      const connection = new WebSocket(wsUrl)
+      connection.onopen = () => {
+        console.log('client.html: connection open')
+      }
+      connection.onmessage = e => {
+        //console.log(`client.html: received socket message ${e.data}`)
+        let msg = JSON.parse(e.data)
+        hrEl.value = msg.hr
+        timeEl.value = msg.time
+      }
+    </script>
+  </body>
+</html>
