@@ -3,37 +3,10 @@
 import * as messaging from "messaging"
 import { settingsStorage } from "settings"
 
-const wsURL = 'ws://127.0.0.1:8080'
-const websocket = new WebSocket(wsURL)
-
 // Initialise settings:
 
 settingsStorage.setItem('hr', '')
 settingsStorage.setItem('time', '')
-
-// Companion-to-server socket:
-
-websocket.addEventListener('open', onSocketOpen)
-websocket.addEventListener('message', onSocketMessage)
-websocket.addEventListener('close', onSocketClose)
-websocket.addEventListener('error', onSocketError)
-
-function onSocketOpen(evt) {
-   console.log('onSocketOpen()')
-}
-
-function onSocketMessage(evt) {
-  // If using fetch(), companion may receive a copy of the socket broadcast from the server. Ignore it.
-  //console.log(`onSocketMessage(): ${evt.data}`)
-}
-
-function onSocketClose() {
-   console.log('onSocketClose()')
-}
-
-function onSocketError(evt) {
-   console.error(`onSocketError(): ${evt.data}. Check that the server is running and accessible.`)
-}
 
 // Clockface-to-companion messaging:
 
@@ -59,6 +32,38 @@ messaging.peerSocket.onerror = function(evt) {
   console.log(`Messaging error: ${evt.code}: ${evt.message}`)
 }
 
+// Companion-to-server socket:
+
+const wsURL = 'ws://127.0.0.1:8080'
+let websocket
+
+openServerConnection()
+
+function openServerConnection() {
+  websocket = new WebSocket(wsURL)
+  websocket.addEventListener('open', onSocketOpen)
+  websocket.addEventListener('message', onSocketMessage)
+  websocket.addEventListener('close', onSocketClose)
+  websocket.addEventListener('error', onSocketError)
+}
+
+function onSocketOpen(evt) {
+   console.log('onSocketOpen()')
+}
+
+function onSocketMessage(evt) {
+  // If using fetch(), companion may receive a copy of the socket broadcast from the server. Ignore it.
+  //console.log(`onSocketMessage(): ${evt.data}`)
+}
+
+function onSocketClose() {
+   console.log('onSocketClose()')
+}
+
+function onSocketError(evt) {
+   console.error(`onSocketError(): check that the server is running and accessible`)
+}
+
 function sendToServerViaSocket(data) {
   //console.log(`sendToServerViaSocket()`)
 
@@ -68,3 +73,11 @@ function sendToServerViaSocket(data) {
     console.log(`sendToServerViaSocket(): can't send because socket readyState=${websocket.readyState}`)
   }
 }
+
+setInterval(() => {   // periodically try to reopen the connection if need be
+  if (websocket.readyState === websocket.CLOSED) {
+    console.error(`websocket is closed: check server is running at ${wsURL}`)
+    console.log(`attempting to reopen websocket`)
+    openServerConnection()
+  }
+}, 1000)

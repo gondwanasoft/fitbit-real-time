@@ -30,7 +30,7 @@ if (HeartRateSensor) {
     if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
       messaging.peerSocket.send({hr:hrm.heartRate, time:hrm.timestamp})
     } else {
-      console.error('Messaging socket not open')
+      console.warn('Messaging socket not open')  // some instances of this are to be expected initially
     }
   })
   hrm.start()
