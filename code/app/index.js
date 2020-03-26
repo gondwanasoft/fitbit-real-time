@@ -25,8 +25,13 @@ messaging.peerSocket.onerror = function(evt) {
 if (HeartRateSensor) {
   const hrm = new HeartRateSensor({ frequency: 1 })
   hrm.addEventListener("reading", () => {
+    // Although it isn’t necessary, we display the reading and timestamp on the watch’s display.
+    // You may not want to do this in a production environment, but you'll probably need to provide
+    // some visual incentive for the user to keep this app running.
     hrEl.text = hrm.heartRate
     timeEl.text = hrm.timestamp
+
+    // Send data (as an object) to companion:
     if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
       messaging.peerSocket.send({hr:hrm.heartRate, time:hrm.timestamp})
     } else {

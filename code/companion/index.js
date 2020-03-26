@@ -35,6 +35,9 @@ messaging.peerSocket.onerror = function(evt) {
 // Companion-to-server socket:
 
 const wsURL = 'ws://127.0.0.1:8080'
+// 127.0.0.1 indicates the companion device, and is the only URL we can use without SSL.
+// 8080 is a port that's commonly used for WebSockets.
+
 let websocket
 
 openServerConnection()
