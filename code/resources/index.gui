@@ -1,0 +1,15 @@
+<!-- Version: a*** (accelerometer, socket/fetch, DoryNode/Heroku, view/save) -->
+
+<svg>
+  <text x="80" y="80" font-family="Colfax-Bold" font-size="40" fill="#808080" text-length="4" >x:</text>
+  <text id="accelX" x="120" y="80" font-family="Colfax-Bold" font-size="40" fill="#80B0FF" text-length="8"></text>
+
+  <text x="80" y="130" font-family="Colfax-Bold" font-size="40" fill="#808080" text-length="4" >y:</text>
+  <text id="accelY" x="120" y="130" font-family="Colfax-Bold" font-size="40" fill="#80B0FF" text-length="8"></text>
+
+  <text x="80" y="180" font-family="Colfax-Bold" font-size="40" fill="#808080" text-length="4" >z:</text>
+  <text id="accelZ" x="120" y="180" font-family="Colfax-Bold" font-size="40" fill="#80B0FF" text-length="8"></text>
+
+  <text x="10" y="250" font-family="Colfax-Bold" font-size="25" fill="#808080" text-length="8" >Time:</text>
+  <text id="time" x="90" y="250" font-family="Colfax-Bold" font-size="25" fill="#ffffff" text-length="12" ></text>
+</svg>
