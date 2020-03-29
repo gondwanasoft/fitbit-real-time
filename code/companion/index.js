@@ -1,27 +1,67 @@
-// Version: hsdv (heart-rate, socket, DoryNode, view)
+// Version: afdv (accelerometer, fetch, DoryNode, view)
 
 import * as messaging from "messaging"
 import { settingsStorage } from "settings"
 
+const USE_FETCH = true;     // if false, use WebSocket to send to server
+
 // Initialise settings:
 
-settingsStorage.setItem('hr', '')
+settingsStorage.setItem('x', '')
+settingsStorage.setItem('y', '')
+settingsStorage.setItem('z', '')
 settingsStorage.setItem('time', '')
 
 // Clockface-to-companion messaging:
+
+const valuesPerReading = 4                    // x, y, z, time
+const bytesPerReading = valuesPerReading * 2  // 2 because values are Int16 (2 bytes) each
+let previousTime = 0                          // timestamp of previous reading
+let timeMSB = 0                               // most significant bits to add to timestamp to adjust for Int16 truncation
 
 messaging.peerSocket.onopen = function() {
   console.log('Messaging open')
 }
 
 messaging.peerSocket.onmessage = function(evt) {
-  // Display data on settings page (for no good reason):
-  settingsStorage.setItem('hr', evt.data.hr)
-  settingsStorage.setItem('time', evt.data.time)
+  // Unpack binary data into an array of objects:
+  const dataView = new DataView(new Uint8Array(evt.data).buffer)
+  const readingCount = dataView.byteLength / bytesPerReading
+  const readingArray = []
+  let x, y, z, time
+  let reading                 // reconstructed reading object
+  let index = 0               // offset into dataView of the first byte in a reading
+  for (let readingNo = 0; readingNo < readingCount; readingNo++) {
+    x = dataView.getInt16(index, true) / 1000
+    y = dataView.getInt16(index + 2, true) / 1000
+    z = dataView.getInt16(index + 4, true) / 1000
+    time = dataView.getInt16(index + 6, true) + timeMSB
 
-  // Pass data to server:
-  let data = JSON.stringify(evt.data)
-  sendToServerViaSocket(data)
+    if (time < previousTime) {
+      // time seems to have gone backwards, so push it up to the next block
+      time += 32768
+      timeMSB += 32768  // subsequent timestamps need to be increased as well
+    }
+    previousTime = time
+
+    reading = {x:x, y:y, z:z, time:time}
+    readingArray.push(reading)
+    index += bytesPerReading
+  }
+
+  const dataObjectString = JSON.stringify(readingArray)
+  //console.log(`dataObjectString=${dataObjectString}`)
+
+  if (USE_FETCH)
+    sendToServerViaFetch(dataObjectString)
+  else
+    sendToServerViaSocket(dataObjectString)
+
+  // Display data on settings page (for no good reason):
+  settingsStorage.setItem('x', x)
+  settingsStorage.setItem('y', y)
+  settingsStorage.setItem('z', z)
+  settingsStorage.setItem('time', time)
 }
 
 messaging.peerSocket.onclose = function(evt) {
@@ -40,7 +80,17 @@ const wsURL = 'ws://127.0.0.1:8080'
 
 let websocket
 
-openServerConnection()
+if (!USE_FETCH) {
+  openServerConnection()
+
+  setInterval(() => {   // periodically try to reopen the connection if need be
+    if (websocket.readyState === websocket.CLOSED) {
+      console.error(`websocket is closed: check server is running at ${wsURL}`)
+      console.log(`attempting to reopen websocket`)
+      openServerConnection()
+    }
+  }, 1000)
+}
 
 function openServerConnection() {
   websocket = new WebSocket(wsURL)
@@ -64,7 +114,7 @@ function onSocketClose() {
 }
 
 function onSocketError(evt) {
-   console.error(`onSocketError(): check that the server is running and accessible`)
+   console.error('onSocketError(): check that the server is running and accessible')
 }
 
 function sendToServerViaSocket(data) {
@@ -73,14 +123,37 @@ function sendToServerViaSocket(data) {
   if (websocket.readyState === websocket.OPEN) {
     websocket.send(data)
   } else {
-    console.log(`sendToServerViaSocket(): can't send because socket readyState=${websocket.readyState}`)
+    // If you want to log an error, limit it to a few times a second.
+    //console.log(`sendToServerViaSocket(): can't send because socket readyState=${websocket.readyState}`)
   }
 }
 
-setInterval(() => {   // periodically try to reopen the connection if need be
-  if (websocket.readyState === websocket.CLOSED) {
-    console.error(`websocket is closed: check server is running at ${wsURL}`)
-    console.log(`attempting to reopen websocket`)
-    openServerConnection()
-  }
-}, 1000)
+// Companion-to-server fetch():
+
+const httpURL = 'http://127.0.0.1:3000'
+
+function sendToServerViaFetch(data) {
+  //console.log('sendToServerViaFetch()')
+
+  let fetchInit = {method: 'POST', body: data}
+  fetch(httpURL, fetchInit)
+  .then(function(response) {
+    // Process server response; eg, to check for errors reported by server:
+    if (response.ok) {
+      response.text().then(text => serverResponseOk(text))
+    } else {
+      response.text().then(text => serverResponseError(text))
+    }
+  })
+  .catch(function(err) {
+    console.log(`sendToServerViaFetch(): fetch error: ${err}`)
+  });
+}
+
+function serverResponseOk(text) {
+  console.log(`serverResponseOk(): text=${text}`)
+}
+
+function serverResponseError(text) {
+ console.log(`serverResponseError(): text=${text}`)
+}
