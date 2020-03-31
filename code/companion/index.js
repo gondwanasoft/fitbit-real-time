@@ -64,7 +64,7 @@ function onSocketClose() {
 }
 
 function onSocketError(evt) {
-   console.error(`onSocketError(): check that the server is running and accessible`)
+   console.error('onSocketError(): check that the server is running and accessible')
 }
 
 function sendToServerViaSocket(data) {

@@ -1,4 +1,4 @@
-//Version: h*** (heart-rate, socket/fetch, DoryNode/Heroku, view/download)
+//Version: h___ (heart-rate, socket/fetch, DoryNode/Heroku, view/save)
 
 function settingsComponent(props) {
   return (

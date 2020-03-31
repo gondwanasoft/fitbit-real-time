@@ -1,4 +1,4 @@
-<!-- Version: h*** (heart-rate, socket/fetch, DoryNode/Heroku, view/download) -->
+<!-- Version: h___ (heart-rate, socket/fetch, DoryNode/Heroku, view/save) -->
 
 <svg>
   <text x="150" y="50" font-family="Colfax-Bold" font-size="30" text-anchor="middle" fill="#808080" text-length="12" >Heart rate:</text>
