@@ -1,4 +1,4 @@
-//Version: a*** (accelerometer, socket/fetch, DoryNode/Heroku, view/save)
+//Version: a___ (accelerometer, socket/fetch, DoryNode/Heroku, view/save)
 
 function settingsComponent(props) {
   return (

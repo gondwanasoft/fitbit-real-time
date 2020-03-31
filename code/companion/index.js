@@ -1,4 +1,4 @@
-// Version: afdv (accelerometer, fetch, DoryNode, view)
+// Version: afd_ (accelerometer, fetch, DoryNode, view/save)
 
 import * as messaging from "messaging"
 import { settingsStorage } from "settings"
