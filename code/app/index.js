@@ -1,4 +1,4 @@
-// Version: asdv (accelerometer, socket, DoryNode, view)
+// Version: a___ (accelerometer, socket/fetch, DoryNode/Heroku, view/save)
 
 import { Accelerometer } from "accelerometer"
 import { me } from "appbit"
