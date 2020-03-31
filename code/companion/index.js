@@ -76,6 +76,14 @@ let websocket
 
 openServerConnection()
 
+setInterval(() => {   // periodically try to reopen the connection if need be
+  if (websocket.readyState === websocket.CLOSED) {
+    console.error(`websocket is closed: check server is running at ${wsURL}`)
+    console.log(`attempting to reopen websocket`)
+    openServerConnection()
+  }
+}, 1000)
+
 function openServerConnection() {
   websocket = new WebSocket(wsURL)
   websocket.addEventListener('open', onSocketOpen)
@@ -111,11 +119,3 @@ function sendToServerViaSocket(data) {
     //console.log(`sendToServerViaSocket(): can't send because socket readyState=${websocket.readyState}`)
   }
 }
-
-setInterval(() => {   // periodically try to reopen the connection if need be
-  if (websocket.readyState === websocket.CLOSED) {
-    console.error(`websocket is closed: check server is running at ${wsURL}`)
-    console.log(`attempting to reopen websocket`)
-    openServerConnection()
-  }
-}, 1000)
